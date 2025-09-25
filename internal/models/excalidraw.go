@@ -12,11 +12,9 @@ type Excalidraw struct {
 }
 
 type ExcalidrawElement struct {
-	ID           string   `json:"id"`
-	Idx          int      `json:"idx"`
-	Type         string   `json:"type"`
-	Text         string   `json:"text,omitempty"`
-	OriginalText string   `json:"originalText,omitempty"`
-	X            *float64 `json:"x"`
-	Y            *float64 `json:"y"`
+	Idx          int    `json:"idx,omitempty"`
+	Day          int    `json:"day,omitempty"`
+	Type         string `json:"type"`
+	Text         string `json:"text,omitempty"`
+	OriginalText string `json:"originalText,omitempty"`
 }

@@ -5,90 +5,99 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
+	"regexp"
 	"sort"
 	"strconv"
-	"strings"
 
 	"github.com/alfianchii/rs-nihongo-notes/internal/models"
+	u "github.com/alfianchii/rs-nihongo-notes/internal/utils"
 )
 
-const DOC_PATH = "./docs/"
-const OUTPUT_NAME = "new.excalidraw"
+const (
+	docPath        = "./docs"
+	defaultOutName = "RSN.excalidraw"
+)
+
+var (
+	reDay = regexp.MustCompile(`^Day\s+(\d+)\b`)
+)
 
 func main() {
 	var (
-		inPath       string
-		outPath      string
-		startedCount int
+		targetedPath string
+		startAt      int
 	)
 
-	flag.StringVar(&inPath, "in", "", "Input Excalidraw JSON file (.excalidraw) from ./docs")
-	flag.IntVar(&startedCount, "start", 1, "Starting day count (e.g., 9)")
+	flag.StringVar(&targetedPath, "in", "", "Input Excalidraw JSON file (.excalidraw) from ./docs")
+	flag.IntVar(&startAt, "start", 1, "Starting day count (e.g., 9)")
 	flag.Parse()
 
-	if inPath == "" {
-		fmt.Fprintln(os.Stderr, "error: -in is required")
-		os.Exit(2)
+	if targetedPath == "" {
+		u.Fatal("-in is required")
 	}
-	inPath = DOC_PATH + inPath
-	outPath = DOC_PATH + OUTPUT_NAME
+	if startAt < 1 {
+		u.Fatal("-start must be >= 1")
+	}
+
+	inPath := filepath.Join(docPath, targetedPath)
+	outPath := filepath.Join(docPath, defaultOutName)
 
 	data, err := os.ReadFile(inPath)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "read error: %v\n", err)
-		os.Exit(1)
-	}
+	u.Must(err, "read input")
 
 	var excali models.Excalidraw
-	json.Unmarshal(data, &excali)
+	u.Must(json.Unmarshal(data, &excali), "parse input JSON")
 
-	var filteredElements []models.ExcalidrawElement
+	var elements []models.ExcalidrawElement
 	for idx, raw := range excali.Elements {
-		var el models.ExcalidrawElement
-		_ = json.Unmarshal(raw, &el)
+		var element models.ExcalidrawElement
+		u.Must(json.Unmarshal(raw, &element), "parse element ")
 
-		if el.Type == "text" && strings.HasPrefix(el.Text, "Day ") {
-			el.Idx = idx
-			filteredElements = append(filteredElements, el)
+		if element.Type != "text" {
+			continue
 		}
+		match := reDay.FindStringSubmatch(element.Text)
+		if len(match) != 2 {
+			continue
+		}
+
+		day, err := strconv.Atoi(match[1])
+		u.Must(err, "parse day number")
+
+		element.Day = day
+		element.Idx = idx
+		elements = append(elements, element)
 	}
 
-	sort.Slice(filteredElements, func(i, j int) bool {
-		currEl := strings.Fields(filteredElements[i].Text)[1]
-		nextEl := strings.Fields(filteredElements[j].Text)[1]
+	sort.SliceStable(elements, func(i, j int) bool {
+		if elements[i].Day == elements[j].Day {
+			return elements[i].Idx < elements[j].Idx
+		}
 
-		currElDay, _ := strconv.Atoi(currEl)
-		nextElDay, _ := strconv.Atoi(nextEl)
-
-		return currElDay < nextElDay
+		return elements[i].Day < elements[j].Day
 	})
 
-	for idx, element := range filteredElements {
-		item := strings.Fields(element.Text)
-		if len(item) >= 2 {
-			item[1] = fmt.Sprintf("%d", startedCount)
-			element.Text = strings.Join(item, " ")
-
-			filteredElements[idx] = element
-			startedCount++
-		}
+	for idx, element := range elements {
+		elements[idx].Text = reDay.ReplaceAllString(element.Text, fmt.Sprintf("Day %d", startAt))
+		startAt++
 	}
 
-	for i, excaliItem := range excali.Elements {
-		for _, filteredEl := range filteredElements {
-			if i == filteredEl.Idx {
-				var m map[string]any
-				json.Unmarshal(excaliItem, &m)
+	for _, element := range elements {
+		var exElement map[string]any
+		u.Must(json.Unmarshal(excali.Elements[element.Idx], &exElement), "re-parse element")
 
-				m["text"] = filteredEl.Text
-				m["originalText"] = filteredEl.OriginalText
+		exElement["text"] = element.Text
+		exElement["originalText"] = element.OriginalText
 
-				b, _ := json.Marshal(m)
-				excali.Elements[i] = b
-			}
-		}
+		byteExElement, err := json.Marshal(exElement)
+		u.Must(err, "re-marshal element")
+		excali.Elements[element.Idx] = byteExElement
 	}
 
-	out, _ := json.MarshalIndent(excali, "", "  ")
-	os.WriteFile(outPath, out, 0644)
+	out, err := json.MarshalIndent(excali, "", "  ")
+	u.Must(err, "marshal output")
+	u.Must(os.WriteFile(outPath, out, 0o644), "write output")
+
+	fmt.Printf("Updated file written to %s\n", outPath)
 }
