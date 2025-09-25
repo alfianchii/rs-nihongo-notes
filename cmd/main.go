@@ -29,15 +29,15 @@ func main() {
 		startAt      int
 	)
 
-	flag.StringVar(&targetedPath, "in", "", "Input Excalidraw JSON file (.excalidraw) from ./docs")
-	flag.IntVar(&startAt, "start", 1, "Starting day count (e.g., 9)")
+	flag.StringVar(&targetedPath, "f", "", "Input Excalidraw JSON file (.excalidraw) from ./docs")
+	flag.IntVar(&startAt, "s", 1, "Starting day count (e.g., 9)")
 	flag.Parse()
 
 	if targetedPath == "" {
-		u.Fatal("-in is required")
+		u.Fatal("-f is required")
 	}
 	if startAt < 1 {
-		u.Fatal("-start must be >= 1")
+		u.Fatal("-s must be >= 1")
 	}
 
 	inPath := filepath.Join(docPath, targetedPath)

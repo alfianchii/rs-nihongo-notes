@@ -32,3 +32,6 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # Excalidraw files
 docs/*.excalidraw
+
+# Bin
+rsn
