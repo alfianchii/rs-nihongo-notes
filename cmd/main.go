@@ -17,17 +17,13 @@ const OUTPUT_NAME = "new.excalidraw"
 
 func main() {
 	var (
-		inPath          string
-		outPath         string
-		startedCount    int
-		orderByPosition bool
-		dryRun          bool
+		inPath       string
+		outPath      string
+		startedCount int
 	)
 
 	flag.StringVar(&inPath, "in", "", "Input Excalidraw JSON file (.excalidraw) from ./docs")
 	flag.IntVar(&startedCount, "start", 1, "Starting day count (e.g., 9)")
-	flag.BoolVar(&orderByPosition, "pos", false, "Order by canvas position (top-to-bottom, left-to-right)")
-	flag.BoolVar(&dryRun, "dry", false, "Dry-run (show how many changes would be made, no write)")
 	flag.Parse()
 
 	if inPath == "" {
