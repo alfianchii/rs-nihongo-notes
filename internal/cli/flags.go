@@ -3,6 +3,8 @@ package cli
 import (
 	"flag"
 	"fmt"
+
+	"github.com/alfianchii/rs-nihongo-notes/internal/utils"
 )
 
 type Options struct {
@@ -29,5 +31,11 @@ func Parse() (Options, error) {
 	if o.StartAt < 1 {
 		return o, fmt.Errorf("-s must be >= 1")
 	}
+
+	err := utils.AssertExcalidrawExt(&o.Output)
+	if err != nil {
+		return o, err
+	}
+
 	return o, nil
 }
