@@ -24,7 +24,7 @@ func Parse() (Options, error) {
 	flag.Parse()
 
 	if o.Input == "" {
-		return o, fmt.Errorf("-in is required")
+		return o, fmt.Errorf("-f is required")
 	}
 	if o.StartAt < 1 {
 		return o, fmt.Errorf("-s must be >= 1")
