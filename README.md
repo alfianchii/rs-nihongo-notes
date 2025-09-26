@@ -28,7 +28,7 @@ go build -o rsn ./cmd
 Suppose you have a file `my-notes.excalidraw` in the `./docs` folder.
 
 ```bash
-./rsn -in my-notes.excalidraw -start 31
+./rsn -f my-notes.excalidraw -s 31
 ```
 
 - `-f` : input file (relative to `./docs/`)
