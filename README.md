@@ -28,27 +28,54 @@ go build -o rsn ./cmd
 Suppose you have a file `my-notes.excalidraw` in the `./docs` folder.
 
 ```bash
-./rsn -f my-notes.excalidraw -s 31 -docs my-documents -o cute-note -dry-run
+./rsn -f my-notes -s 31 -docs my-documents -o cute-note -dry-run
 ```
 
-- `-f` : input file (relative to `./docs/`)
-- `-s` : starting day number (default: `1`)
+### Options
 
-The updated file will be saved as:
+- `-f` : input file (relative to `./docs/`).
+- - You may omit the `.excalidraw` extension; it will be added automatically.
+- `-s` : starting day number (default: `1`).
+- `-docs` : Docs root directory (default: `./docs`). All input/output paths are resolved relative to this directory.
+- `-o` : Output file name (relative to `-docs`, default: `RSN.excalidraw`).
+- - Yes, you can omit the `.excalidraw` too.
+- - Example: `-o cute-note.excalidraw` → writes `-o cute-note`.
+- `-dry-run` : Preview only. Prints the renumbered text elements to stdout without writing the output file.
+
+### Examples
 
 ```bash
-./docs/RSN.excalidraw
+# Preview changes only, don’t write file
+./rsn -f my-notes -s 31 -dry-run
+
+# Write output file "cute-note.excalidraw" into ./docs
+./rsn -f my-notes -s 31 -o cute-note
+
+# Use a custom docs directory
+./rsn -f my-notes -s 10 -docs my-documents
 ```
 
 ## 📂 Project Structure
 
 ```bash
 rs-nihongo-notes/
-├── cmd/              # CLI entrypoint
+├── cmd/                 # CLI entrypoint (main program)
+│   └── main.go
+├── docs/                # Your Excalidraw notes (input/output root)
 ├── internal/
-│   ├── models/       # Excalidraw data structures
-│   └── utils/        # Helpers for error handling, etc.
-└── docs/             # Your Excalidraw notes (input/output)
+│   ├── app/             # Application orchestration (Run)
+│   │   └── app.go
+│   ├── cli/             # Flags & CLI options parsing
+│   │   └── flags.go
+│   ├── excalidraw/      # Excalidraw data model (I/O, types, and features)
+│   │   ├── io.go
+│   │   ├── model.go
+│   │   └── services/
+│   └── utils/           # Helpers
+│       └── validation.go
+├── go.mod
+├── LICENSE
+└── README.md
 ```
 
 ## 🔮 Roadmap
