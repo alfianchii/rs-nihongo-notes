@@ -33,7 +33,8 @@ func Write(base string, path string, f *Doc) error {
 	if err := os.MkdirAll(base, 0o755); err != nil {
 		return fmt.Errorf("ensure docs dir: %w", err)
 	}
-	full := filepath.Join(base, path)
+	clean := filepath.Clean(path)
+	full := filepath.Join(base, clean)
 
 	out, err := json.MarshalIndent(f, "", "  ")
 	if err != nil {
