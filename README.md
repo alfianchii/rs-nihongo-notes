@@ -28,7 +28,7 @@ go build -o rsn ./cmd
 Suppose you have a file `my-notes.excalidraw` in the `./docs` folder.
 
 ```bash
-./rsn -f my-notes.excalidraw -s 31
+./rsn -f my-notes.excalidraw -s 31 -docs my-documents -o cute-note -dry-run
 ```
 
 - `-f` : input file (relative to `./docs/`)
@@ -53,8 +53,9 @@ rs-nihongo-notes/
 
 ## 🔮 Roadmap
 
-- [ ] Dry-run mode to preview changes
-- [ ] Add `-o` flag to choose output filename
+- [x] Dry-run mode to preview changes
+- [x] Add `-o` flag to choose output filename (relative to `./docs`)
+- [x] Add `-docs` flag to choose docs directory (where you would put `.excalidraw` files)
 - [ ] **Custom month**: use `-m` flag to insert the current learning month (e.g., "October")
 - [ ] **Custom year**: use `-y` flag to insert the learning year (e.g., "2025")
 - [ ] **Custom JLPT level**: allow tagging notes with `-n N5|N4|N3|N2|N1`
