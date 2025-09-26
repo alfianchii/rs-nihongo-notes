@@ -1,7 +1,6 @@
 package app
 
 import (
-	"context"
 	"fmt"
 	"io/fs"
 	"path/filepath"
@@ -11,7 +10,7 @@ import (
 	"github.com/alfianchii/rs-nihongo-notes/internal/excalidraw/services"
 )
 
-func Run(ctx context.Context, fsys fs.FS, opts cli.Options) error {
+func Run(fsys fs.FS, opts cli.Options) error {
 	file, err := excalidraw.Read(fsys, opts.Input)
 	if err != nil {
 		return err
