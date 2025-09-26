@@ -83,6 +83,7 @@ rs-nihongo-notes/
 - [x] Dry-run mode to preview changes
 - [x] Add `-o` flag to choose output filename (relative to `./docs`)
 - [x] Add `-docs` flag to choose docs directory (where you would put `.excalidraw` files)
+- [ ] **Interactive logs**: enhance CLI output with colors, progress indicators, or interactive prompts for a better user experience
 - [ ] **Custom month**: use `-m` flag to insert the current learning month (e.g., "October")
 - [ ] **Custom year**: use `-y` flag to insert the learning year (e.g., "2025")
 - [ ] **Custom JLPT level**: allow tagging notes with `-n N5|N4|N3|N2|N1`
