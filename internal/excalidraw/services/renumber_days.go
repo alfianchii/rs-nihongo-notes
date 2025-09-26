@@ -83,8 +83,8 @@ func RenumberDays(f *excalidraw.Doc, opt RenumberDayOptions) ([]excalidraw.Eleme
 		oldText := exElement["text"].(string)
 		newText := reDay.ReplaceAllString(oldText, fmt.Sprintf("Day %d", startAt))
 
-		elements[idx].OldText = oldText
-		elements[idx].Text = newText
+		filteredElements[idx].OldText = oldText
+		filteredElements[idx].Text = newText
 		exElement["text"] = newText
 		exElement["originalText"] = newText
 

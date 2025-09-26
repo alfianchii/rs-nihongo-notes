@@ -22,8 +22,6 @@ func Run(fsys fs.FS, opts cli.Options) error {
 		for _, el := range exElements {
 			fmt.Printf("[%d] %q => %q\n", el.Idx, el.OldText, el.Text)
 		}
-
-		return nil
 	}
 
 	if err := excalidraw.Write(opts.DocsRoot, opts.Output, file); err != nil {
