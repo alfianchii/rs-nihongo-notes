@@ -32,7 +32,12 @@ func Parse() (Options, error) {
 		return o, fmt.Errorf("-s must be >= 1")
 	}
 
-	err := utils.AssertExcalidrawExt(&o.Output)
+	err := utils.AssertExcalidrawExt(&o.Input)
+	if err != nil {
+		return o, err
+	}
+
+	err = utils.AssertExcalidrawExt(&o.Output)
 	if err != nil {
 		return o, err
 	}
