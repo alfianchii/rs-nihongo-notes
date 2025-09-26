@@ -1,8 +1,8 @@
-package models
+package excalidraw
 
 import "encoding/json"
 
-type Excalidraw struct {
+type Doc struct {
 	Type     string                     `json:"type"`
 	Version  int                        `json:"version"`
 	Source   string                     `json:"source"`
@@ -11,9 +11,10 @@ type Excalidraw struct {
 	Files    map[string]json.RawMessage `json:"files"`
 }
 
-type ExcalidrawElement struct {
-	Idx          int    `json:"idx,omitempty"`
-	Day          int    `json:"day,omitempty"`
+type Element struct {
+	Idx          int    `json:"-"`
+	Day          int    `json:"-"`
+	OldText      string `json:"-"`
 	Type         string `json:"type"`
 	Text         string `json:"text,omitempty"`
 	OriginalText string `json:"originalText,omitempty"`
