@@ -12,19 +12,17 @@ import (
 
 func Run(fsys fs.FS, opts cli.Options) error {
 	file, err := excalidraw.Read(fsys, opts.Input)
-	if err != nil {
-		return err
-	}
+	if err != nil { return err }
 
 	exElements, err := services.RenumberDays(file, services.RenumberDayOptions{StartAt: opts.StartAt})
-	if err != nil {
-		return err
-	}
+	if err != nil { return err }
+	if len(exElements) == 0 { return fmt.Errorf("no matching elements") }
 
 	if opts.DryRun {
 		for _, el := range exElements {
 			fmt.Printf("[%d] %q => %q\n", el.Idx, el.OldText, el.Text)
 		}
+
 		return nil
 	}
 
