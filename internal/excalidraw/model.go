@@ -18,4 +18,5 @@ type Element struct {
 	Type         string `json:"type"`
 	Text         string `json:"text,omitempty"`
 	OriginalText string `json:"originalText,omitempty"`
+	Raw          map[string]any
 }

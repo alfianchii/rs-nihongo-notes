@@ -34,51 +34,68 @@ func GetDay(e *excalidraw.Element) (int, bool, error) {
 }
 
 func RenumberDays(f *excalidraw.Doc, opt RenumberDayOptions) ([]excalidraw.Element, error) {
-	var elements []excalidraw.Element
+	elements := make([]excalidraw.Element, len(f.Elements))
+	filteredElements := make([]excalidraw.Element, 0, len(f.Elements))
+
 	for idx, raw := range f.Elements {
-		var element excalidraw.Element
-		if err := json.Unmarshal(raw, &element); err != nil {
-			return nil, fmt.Errorf("parse element %d: %w", idx, err)
+		var item map[string]any
+		if err := json.Unmarshal(raw, &item); err != nil {
+			return nil, fmt.Errorf("parse item %d: %w", idx, err)
 		}
+
+		var element excalidraw.Element = excalidraw.Element{
+			Raw: item,
+		}
+		if v, ok := item["type"].(string); ok {
+			element.Type = v
+		}
+		if v, ok := item["text"].(string); ok {
+			element.Text = v
+		}
+		if v, ok := item["originalText"].(string); ok {
+			element.OriginalText = v
+		}
+		elements[idx] = element
 
 		if day, ok, err := GetDay(&element); err != nil {
 			return nil, err
 		} else if ok {
-			element.Idx = idx
-			element.Day = day
-			elements = append(elements, element)
+			filteredElements = append(filteredElements, excalidraw.Element{
+				Idx:  idx,
+				Day:  day,
+				Type: element.Type,
+				Text: element.Text,
+			})
 		}
 	}
 
-	sort.SliceStable(elements, func(i, j int) bool {
-		if elements[i].Day == elements[j].Day {
-			return elements[i].Idx < elements[j].Idx
+	sort.SliceStable(filteredElements, func(i, j int) bool {
+		if filteredElements[i].Day == filteredElements[j].Day {
+			return filteredElements[i].Idx < filteredElements[j].Idx
 		}
 
-		return elements[i].Day < elements[j].Day
+		return filteredElements[i].Day < filteredElements[j].Day
 	})
 
 	startAt := opt.StartAt
-	for idx, element := range elements {
-		var exElement map[string]any
-		if err := json.Unmarshal(f.Elements[element.Idx], &exElement); err != nil {
-			return nil, fmt.Errorf("reparse element %d: %w", elements[idx].Idx, err)
-		}
+	for idx, element := range filteredElements {
+		exElement := elements[element.Idx].Raw
+		oldText := exElement["text"].(string)
+		newText := reDay.ReplaceAllString(oldText, fmt.Sprintf("Day %d", startAt))
 
-		renumberedDay := reDay.ReplaceAllString(element.Text, fmt.Sprintf("Day %d", startAt))
-		exElement["text"] = renumberedDay
-		exElement["originalText"] = renumberedDay
-		elements[idx].OldText = element.Text
-		elements[idx].Text = renumberedDay
+		elements[idx].OldText = oldText
+		elements[idx].Text = newText
+		exElement["text"] = newText
+		exElement["originalText"] = newText
 
 		byteExElement, err := json.Marshal(exElement)
 		if err != nil {
-			return nil, fmt.Errorf("remarshal element %d: %w", elements[idx].Idx, err)
+			return nil, fmt.Errorf("remarshal element %d: %w", element.Idx, err)
 		}
 		f.Elements[element.Idx] = byteExElement
 
 		startAt++
 	}
 
-	return elements, nil
+	return filteredElements, nil
 }
